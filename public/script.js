@@ -29,7 +29,7 @@ let agentConfig = {
             enter: [659, 681, "idle", 0.25],
             leave: [23, 47, 47, 0.25]
         },
-        image: 'https://raw.githubusercontent.com/Rafafrias2012/BonziWORLD-V7.8.0/refs/heads/main/client/img/agents/purple.png'
+        image: 'https://raw.githubusercontent.com/Rafafrias2012/BonziWORLD-V7.8.0/refs/heads/main/client/img/agents/peedy.png'
     },
     clippy: {
         spritew: 124,

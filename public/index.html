@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClippyCHAT REBORN+</title>
+    <link rel="stylesheet" href="https://unpkg.com/98.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="https://code.createjs.com/1.0.0/createjs.min.js"></script>
+    <script src="speakClient.js"></script>
+</head>
+<body>
+    <div id="login-window" class="window">
+        <div class="title-bar">
+            <div class="title-bar-text">Login</div>
+            <div class="title-bar-controls">
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <div class="field-row">
+                <label for="nickname">Nickname:</label>
+                <input id="nickname" type="text" maxlength="32">
+            </div>
+            <div class="field-row">
+                <label for="room">Room ID:</label>
+                <input id="room" type="text" value="default">
+            </div>
+            <div class="field-row">
+                <button id="login-btn">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="chat-screen" class="window" style="display: none;">
+        <div class="title-bar">
+            <div class="title-bar-text">ClippyCHAT REBORN+</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Maximize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <div class="room-info">Room: <span id="room-id">default</span></div>
+            <div id="chat-container"></div>
+            <div class="field-row chat-input">
+                <input id="message-input" type="text" placeholder="Type your message...">
+                <button id="send-btn">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="agent-container">
+        <div class="agent-nametag"></div>
+        <canvas id="agent-canvas"></canvas>
+        <div id="speech-bubble" class="speech-bubble"></div>
+    </div>
+
+    <div id="taskbar" class="taskbar">
+        <div class="taskbar-start">
+            <button class="start-button">Start</button>
+        </div>
+        <div class="taskbar-windows">
+            <button class="taskbar-button" id="chat-taskbar-btn">ClippyCHAT REBORN+</button>
+            <button class="taskbar-button" id="help-btn">Help</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html> 

@@ -1,0 +1,5 @@
+{
+    "nameLimit": 32,
+    "messageLimit": 512,
+    "defaultRoom": "default"
+} 

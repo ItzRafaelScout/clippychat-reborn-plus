@@ -4,6 +4,8 @@ let stage;
 let agentSprite;
 let nickname = '';
 let currentRoom = 'default';
+let remoteAgents = new Map(); // Store other users' agents
+
 let agentConfig = {
     bonzi: {
         spritew: 200,
@@ -62,6 +64,9 @@ function placeAgentRandomly() {
     
     // Update nametag
     document.querySelector('.agent-nametag').textContent = nickname;
+    
+    // Inform server of position
+    socket.emit('updatePosition', { x: randomX, y: randomY });
 }
 
 // Initialize CreateJS
@@ -90,6 +95,65 @@ function initAgent() {
     // Make agent draggable
     makeAgentDraggable();
     placeAgentRandomly();
+}
+
+// Create remote agent
+function createRemoteAgent(userData) {
+    const remoteAgentContainer = document.createElement('div');
+    remoteAgentContainer.className = 'remote-agent';
+    remoteAgentContainer.id = `agent-${userData.id}`;
+    remoteAgentContainer.style.left = `${userData.position.x}px`;
+    remoteAgentContainer.style.top = `${userData.position.y}px`;
+    
+    const nametag = document.createElement('div');
+    nametag.className = 'agent-nametag';
+    nametag.textContent = userData.nickname;
+    
+    const canvas = document.createElement('canvas');
+    canvas.className = 'remote-agent-canvas';
+    canvas.id = `canvas-${userData.id}`;
+    canvas.width = 200;
+    canvas.height = 200;
+    
+    const speechBubble = document.createElement('div');
+    speechBubble.className = 'speech-bubble';
+    speechBubble.id = `speech-${userData.id}`;
+    
+    remoteAgentContainer.appendChild(nametag);
+    remoteAgentContainer.appendChild(canvas);
+    remoteAgentContainer.appendChild(speechBubble);
+    
+    document.getElementById('remote-agents-container').appendChild(remoteAgentContainer);
+    
+    // Initialize CreateJS for remote agent
+    const remoteStage = new createjs.Stage(canvas.id);
+    const config = agentConfig[userData.agent];
+    
+    const image = new Image();
+    image.src = config.image;
+    image.onload = () => {
+        const remoteSprite = new createjs.Sprite(new createjs.SpriteSheet({
+            images: [image],
+            frames: {
+                width: config.spritew,
+                height: config.spriteh,
+                count: Math.floor(config.w / config.spritew) * Math.floor(config.h / config.spriteh)
+            },
+            animations: config.anims
+        }));
+        
+        remoteStage.addChild(remoteSprite);
+        remoteSprite.gotoAndPlay("idle");
+        createjs.Ticker.addEventListener("tick", remoteStage);
+        
+        // Store remote agent data
+        remoteAgents.set(userData.id, {
+            container: remoteAgentContainer,
+            stage: remoteStage,
+            sprite: remoteSprite,
+            speechBubble
+        });
+    };
 }
 
 // Helper function for range
@@ -126,6 +190,9 @@ function makeAgentDraggable() {
             
             agentContainer.style.left = newX + 'px';
             agentContainer.style.top = newY + 'px';
+            
+            // Send position update to server
+            socket.emit('updatePosition', { x: newX, y: newY });
         }
     });
     
@@ -141,7 +208,7 @@ document.getElementById('login-btn').addEventListener('click', () => {
     currentRoom = document.getElementById('room').value || 'default';
     
     if (nickname) {
-        socket.emit('login', { nickname, room: currentRoom });
+        socket.emit('login', { nickname, room: currentRoom, agent: currentAgent });
         document.getElementById('login-window').style.display = 'none';
         document.getElementById('chat-screen').style.display = 'block';
         document.getElementById('room-id').textContent = currentRoom;
@@ -164,6 +231,14 @@ function sendMessage() {
             handleCommand(message);
         } else {
             socket.emit('chatMessage', { message });
+            
+            // Show speech bubble for current user
+            const speechBubble = document.getElementById('speech-bubble');
+            speechBubble.textContent = message;
+            speechBubble.style.display = 'block';
+            setTimeout(() => {
+                speechBubble.style.display = 'none';
+            }, 3000);
         }
         input.value = '';
     }
@@ -175,7 +250,7 @@ function handleCommand(command) {
         case 'name':
             if (parts[1]) {
                 nickname = parts[1];
-                socket.emit('login', { nickname, room: currentRoom });
+                socket.emit('login', { nickname, room: currentRoom, agent: currentAgent });
                 document.querySelector('.agent-nametag').textContent = nickname;
             }
             break;
@@ -198,24 +273,76 @@ socket.on('message', (data) => {
     chatContainer.appendChild(messageDiv);
     chatContainer.scrollTop = chatContainer.scrollHeight;
     
-    // Show speech bubble
-    const speechBubble = document.getElementById('speech-bubble');
-    speechBubble.textContent = data.message;
-    speechBubble.style.display = 'block';
-    setTimeout(() => {
-        speechBubble.style.display = 'none';
-    }, 3000);
+    // If message is from another user, show their speech bubble
+    if (data.id !== socket.id && remoteAgents.has(data.id)) {
+        const remoteAgent = remoteAgents.get(data.id);
+        const speechBubble = remoteAgent.speechBubble;
+        speechBubble.textContent = data.message;
+        speechBubble.style.display = 'block';
+        setTimeout(() => {
+            speechBubble.style.display = 'none';
+        }, 3000);
+        
+        // Text-to-speech
+        speak.play(data.message);
+    }
+});
+
+socket.on('currentUsers', (users) => {
+    // Create agents for all existing users
+    users.forEach(user => {
+        createRemoteAgent(user);
+    });
+});
+
+socket.on('userJoined', (userData) => {
+    appendSystemMessage(`${userData.nickname} joined the chat`);
+    createRemoteAgent(userData);
+});
+
+socket.on('userLeft', (data) => {
+    appendSystemMessage(`${data.nickname} left the chat`);
     
-    // Text-to-speech
-    speak.play(data.message);
+    // Remove remote agent
+    if (remoteAgents.has(data.id)) {
+        const container = document.getElementById(`agent-${data.id}`);
+        if (container) {
+            container.remove();
+        }
+        remoteAgents.delete(data.id);
+    }
 });
 
-socket.on('userJoined', (data) => {
-    appendSystemMessage(`${data.nickname} joined the chat`);
+socket.on('agentMoved', (data) => {
+    if (remoteAgents.has(data.id)) {
+        const agentContainer = document.getElementById(`agent-${data.id}`);
+        if (agentContainer) {
+            agentContainer.style.left = `${data.position.x}px`;
+            agentContainer.style.top = `${data.position.y}px`;
+        }
+    }
 });
 
-socket.on('userLeft', (nickname) => {
-    appendSystemMessage(`${nickname} left the chat`);
+socket.on('agentChanged', (data) => {
+    if (remoteAgents.has(data.id)) {
+        // Remove old agent
+        const container = document.getElementById(`agent-${data.id}`);
+        if (container) {
+            container.remove();
+        }
+        remoteAgents.delete(data.id);
+        
+        // Create new agent with updated agent type
+        createRemoteAgent({
+            id: data.id,
+            nickname: data.nickname,
+            agent: data.agent,
+            position: {
+                x: parseInt(container.style.left),
+                y: parseInt(container.style.top)
+            }
+        });
+    }
 });
 
 function appendSystemMessage(message) {

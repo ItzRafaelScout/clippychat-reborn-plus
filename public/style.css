@@ -38,22 +38,11 @@ body {
 }
 
 #chat-container {
-    height: calc(100% - 75px);
+    height: calc(100% - 35px);
     overflow-y: auto;
-    margin-bottom: 10px;
     padding: 10px;
     background-color: white;
     border: 1px solid #000;
-}
-
-.chat-input {
-    display: flex;
-    justify-content: space-between;
-}
-
-.chat-input input {
-    flex-grow: 1;
-    margin-right: 5px;
 }
 
 .message {
@@ -70,7 +59,7 @@ body {
     color: #555;
 }
 
-#agent-container {
+#agent-container, .remote-agent {
     position: absolute;
     cursor: move;
     z-index: 20;
@@ -90,7 +79,7 @@ body {
     margin: 0 auto;
 }
 
-#agent-canvas {
+#agent-canvas, .remote-agent-canvas {
     width: 200px;
     height: 200px;
     background-color: transparent;
@@ -140,6 +129,7 @@ body {
 .taskbar-windows {
     display: flex;
     gap: 5px;
+    margin-right: 15px;
 }
 
 .taskbar-button {
@@ -153,4 +143,27 @@ body {
 
 .taskbar-button:active {
     background-color: #a0a0a0;
+}
+
+.taskbar-chat {
+    flex-grow: 1;
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.taskbar-chat input {
+    flex-grow: 1;
+    height: 20px;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-size: 12px;
+}
+
+.taskbar-chat button {
+    height: 20px;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
 } 

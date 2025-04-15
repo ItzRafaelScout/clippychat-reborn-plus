@@ -44,7 +44,9 @@ io.on('connection', (socket) => {
                 nickname: data.nickname,
                 room: data.room || 'default',
                 agent: data.agent || 'clippy',
-                position
+                position,
+                isTyping: false,
+                isCommanding: false
             });
 
             // Join the room
@@ -74,6 +76,19 @@ io.on('connection', (socket) => {
         }
     });
 
+    socket.on('typingStatus', (status) => {
+        const user = users.get(socket.id);
+        if (user) {
+            user.isTyping = status.isTyping;
+            user.isCommanding = status.isCommanding;
+            socket.to(user.room).emit('typingStatus', {
+                id: socket.id,
+                isTyping: status.isTyping,
+                isCommanding: status.isCommanding
+            });
+        }
+    });
+
     socket.on('chatMessage', (data) => {
         if (data.message && data.message.length <= config.messageLimit) {
             const user = users.get(socket.id);
@@ -84,6 +99,10 @@ io.on('connection', (socket) => {
                     message: data.message,
                     agent: user.agent
                 });
+                
+                // Reset typing status
+                user.isTyping = false;
+                user.isCommanding = false;
             }
         }
     });

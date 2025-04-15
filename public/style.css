@@ -77,6 +77,38 @@ body {
     text-align: center;
     width: 100px;
     margin: 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nametag-text {
+    flex-grow: 1;
+    text-align: center;
+}
+
+.status-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-left: 5px;
+    background-color: transparent;
+}
+
+.status-indicator.typing {
+    background-color: #00ff00;
+    animation: blink 1s infinite;
+}
+
+.status-indicator.commanding {
+    background-color: #ffff00;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
 }
 
 #agent-canvas, .remote-agent-canvas {
@@ -98,6 +130,51 @@ body {
     display: none;
     font-family: 'MS Sans Serif', Arial, sans-serif;
     font-size: 12px;
+    cursor: pointer;
+}
+
+.speech-bubble:hover {
+    background-color: #efefef;
+}
+
+.context-menu {
+    position: absolute;
+    width: 180px;
+    background-color: #c0c0c0;
+    border-top: 2px solid #fff;
+    border-left: 2px solid #fff;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    padding: 2px;
+    font-family: 'MS Sans Serif', Arial, sans-serif;
+    font-size: 12px;
+    z-index: 1000;
+}
+
+.context-menu hr {
+    margin: 2px 0;
+    border: none;
+    border-top: 1px solid #808080;
+}
+
+.context-menu-item {
+    padding: 4px 10px;
+    cursor: pointer;
+}
+
+.context-menu-item:hover {
+    background-color: #000080;
+    color: white;
+}
+
+.context-menu-item.disabled {
+    color: #808080;
+    cursor: default;
+}
+
+.context-menu-item.disabled:hover {
+    background-color: transparent;
+    color: #808080;
 }
 
 .taskbar {

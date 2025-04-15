@@ -5,6 +5,11 @@ let agentSprite;
 let nickname = '';
 let currentRoom = 'default';
 let remoteAgents = new Map(); // Store other users' agents
+let isTyping = false;
+let typingTimeout;
+let isCommanding = false;
+let mutedAgents = new Set(); // Store muted agent IDs
+let speechBubbleTimeout; // For auto-closing speech bubbles
 
 let agentConfig = {
     bonzi: {
@@ -63,7 +68,7 @@ function placeAgentRandomly() {
     agentContainer.style.top = randomY + 'px';
     
     // Update nametag
-    document.querySelector('.agent-nametag').textContent = nickname;
+    document.querySelector('.nametag-text').textContent = nickname;
     
     // Inform server of position
     socket.emit('updatePosition', { x: randomX, y: randomY });
@@ -95,6 +100,12 @@ function initAgent() {
     // Make agent draggable
     makeAgentDraggable();
     placeAgentRandomly();
+    
+    // Add speech bubble click handler
+    setupSpeechBubbleClickHandler();
+    
+    // Add context menu functionality
+    setupAgentContextMenu();
 }
 
 // Create remote agent
@@ -107,7 +118,16 @@ function createRemoteAgent(userData) {
     
     const nametag = document.createElement('div');
     nametag.className = 'agent-nametag';
-    nametag.textContent = userData.nickname;
+    
+    const nametagText = document.createElement('span');
+    nametagText.className = 'nametag-text';
+    nametagText.textContent = userData.nickname;
+    
+    const statusIndicator = document.createElement('span');
+    statusIndicator.className = 'status-indicator';
+    
+    nametag.appendChild(nametagText);
+    nametag.appendChild(statusIndicator);
     
     const canvas = document.createElement('canvas');
     canvas.className = 'remote-agent-canvas';
@@ -118,6 +138,11 @@ function createRemoteAgent(userData) {
     const speechBubble = document.createElement('div');
     speechBubble.className = 'speech-bubble';
     speechBubble.id = `speech-${userData.id}`;
+    
+    // Add click handler to close speech bubble
+    speechBubble.addEventListener('click', () => {
+        speechBubble.style.display = 'none';
+    });
     
     remoteAgentContainer.appendChild(nametag);
     remoteAgentContainer.appendChild(canvas);
@@ -151,10 +176,137 @@ function createRemoteAgent(userData) {
             container: remoteAgentContainer,
             stage: remoteStage,
             sprite: remoteSprite,
-            speechBubble
+            speechBubble,
+            statusIndicator,
+            muted: false
         });
+        
+        // Add context menu for remote agent
+        setupRemoteAgentContextMenu(remoteAgentContainer, userData.id);
     };
 }
+
+// Setup speech bubble click handler
+function setupSpeechBubbleClickHandler() {
+    const speechBubble = document.getElementById('speech-bubble');
+    speechBubble.addEventListener('click', () => {
+        speechBubble.style.display = 'none';
+        if (speechBubbleTimeout) {
+            clearTimeout(speechBubbleTimeout);
+        }
+    });
+}
+
+// Setup context menu for local agent
+function setupAgentContextMenu() {
+    const agentContainer = document.getElementById('agent-container');
+    const contextMenu = document.getElementById('agent-context-menu');
+    
+    agentContainer.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        
+        // Position context menu
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        contextMenu.style.display = 'block';
+        
+        // Set close speech bubble action
+        const closeBubbleItem = contextMenu.querySelector('[data-action="close"]');
+        const speechBubble = document.getElementById('speech-bubble');
+        
+        if (speechBubble.style.display === 'block' || speechBubble.style.display === '') {
+            closeBubbleItem.classList.remove('disabled');
+        } else {
+            closeBubbleItem.classList.add('disabled');
+        }
+    });
+}
+
+// Setup context menu for remote agent
+function setupRemoteAgentContextMenu(agentContainer, agentId) {
+    const contextMenu = document.getElementById('agent-context-menu');
+    
+    agentContainer.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        
+        // Position context menu
+        contextMenu.style.left = `${e.pageX}px`;
+        contextMenu.style.top = `${e.pageY}px`;
+        contextMenu.style.display = 'block';
+        
+        // Store which agent the context menu is for
+        contextMenu.dataset.targetAgent = agentId;
+        
+        // Configure menu items
+        const closeBubbleItem = contextMenu.querySelector('[data-action="close"]');
+        const muteItem = contextMenu.querySelector('[data-action="mute"]');
+        const unmuteItem = contextMenu.querySelector('[data-action="unmute"]');
+        
+        const speechBubble = document.getElementById(`speech-${agentId}`);
+        const isMuted = mutedAgents.has(agentId);
+        
+        // Enable/disable close bubble option
+        if (speechBubble.style.display === 'block' || speechBubble.style.display === '') {
+            closeBubbleItem.classList.remove('disabled');
+        } else {
+            closeBubbleItem.classList.add('disabled');
+        }
+        
+        // Show appropriate mute/unmute option
+        if (isMuted) {
+            muteItem.style.display = 'none';
+            unmuteItem.style.display = 'block';
+        } else {
+            muteItem.style.display = 'block';
+            unmuteItem.style.display = 'none';
+        }
+    });
+}
+
+// Handle context menu actions
+document.addEventListener('click', (e) => {
+    const contextMenu = document.getElementById('agent-context-menu');
+    
+    // Hide context menu when clicking elsewhere
+    if (!contextMenu.contains(e.target)) {
+        contextMenu.style.display = 'none';
+        return;
+    }
+    
+    // Handle menu item clicks
+    if (e.target.classList.contains('context-menu-item')) {
+        const action = e.target.dataset.action;
+        const agentId = contextMenu.dataset.targetAgent;
+        
+        if (action === 'close') {
+            // Close speech bubble
+            if (agentId) {
+                const speechBubble = document.getElementById(`speech-${agentId}`);
+                speechBubble.style.display = 'none';
+            } else {
+                const speechBubble = document.getElementById('speech-bubble');
+                speechBubble.style.display = 'none';
+                if (speechBubbleTimeout) {
+                    clearTimeout(speechBubbleTimeout);
+                }
+            }
+        } else if (action === 'mute') {
+            // Mute agent
+            if (agentId) {
+                mutedAgents.add(agentId);
+                remoteAgents.get(agentId).muted = true;
+            }
+        } else if (action === 'unmute') {
+            // Unmute agent
+            if (agentId) {
+                mutedAgents.delete(agentId);
+                remoteAgents.get(agentId).muted = false;
+            }
+        }
+        
+        contextMenu.style.display = 'none';
+    }
+});
 
 // Helper function for range
 function range(start, end) {
@@ -168,6 +320,9 @@ function makeAgentDraggable() {
     let offsetX, offsetY;
     
     agentContainer.addEventListener('mousedown', (e) => {
+        // Only handle left mouse button for dragging
+        if (e.button !== 0) return;
+        
         isDragging = true;
         offsetX = e.clientX - agentContainer.offsetLeft;
         offsetY = e.clientY - agentContainer.offsetTop;
@@ -216,6 +371,66 @@ document.getElementById('login-btn').addEventListener('click', () => {
     }
 });
 
+// Typing indicator
+document.getElementById('message-input').addEventListener('input', (e) => {
+    const message = e.target.value.trim();
+    
+    // Clear any existing timeout
+    if (typingTimeout) {
+        clearTimeout(typingTimeout);
+    }
+    
+    // Check if the message is a command
+    if (message.startsWith('/')) {
+        // Show commanding indicator
+        showCommandingIndicator();
+    } else if (message.length > 0) {
+        // Show typing indicator
+        showTypingIndicator();
+    } else {
+        // Remove indicators
+        hideStatusIndicators();
+    }
+    
+    // Send typing status to server
+    socket.emit('typingStatus', { 
+        isTyping: message.length > 0,
+        isCommanding: message.startsWith('/')
+    });
+    
+    // Set timeout to clear typing indicator after 2 seconds of inactivity
+    typingTimeout = setTimeout(() => {
+        hideStatusIndicators();
+        socket.emit('typingStatus', { isTyping: false, isCommanding: false });
+    }, 2000);
+});
+
+// Show typing indicator
+function showTypingIndicator() {
+    isTyping = true;
+    isCommanding = false;
+    const statusIndicator = document.querySelector('#agent-container .status-indicator');
+    statusIndicator.classList.remove('commanding');
+    statusIndicator.classList.add('typing');
+}
+
+// Show commanding indicator
+function showCommandingIndicator() {
+    isTyping = false;
+    isCommanding = true;
+    const statusIndicator = document.querySelector('#agent-container .status-indicator');
+    statusIndicator.classList.remove('typing');
+    statusIndicator.classList.add('commanding');
+}
+
+// Hide status indicators
+function hideStatusIndicators() {
+    isTyping = false;
+    isCommanding = false;
+    const statusIndicator = document.querySelector('#agent-container .status-indicator');
+    statusIndicator.classList.remove('typing', 'commanding');
+}
+
 // Chat functionality
 document.getElementById('send-btn').addEventListener('click', sendMessage);
 document.getElementById('message-input').addEventListener('keypress', (e) => {
@@ -233,15 +448,29 @@ function sendMessage() {
             socket.emit('chatMessage', { message });
             
             // Show speech bubble for current user
-            const speechBubble = document.getElementById('speech-bubble');
-            speechBubble.textContent = message;
-            speechBubble.style.display = 'block';
-            setTimeout(() => {
-                speechBubble.style.display = 'none';
-            }, 3000);
+            showSpeechBubble('speech-bubble', message);
         }
         input.value = '';
+        hideStatusIndicators();
+        socket.emit('typingStatus', { isTyping: false, isCommanding: false });
     }
+}
+
+// Show speech bubble with auto-close
+function showSpeechBubble(bubbleId, message) {
+    const speechBubble = document.getElementById(bubbleId);
+    speechBubble.textContent = message;
+    speechBubble.style.display = 'block';
+    
+    // Clear existing timeout if any
+    if (speechBubbleTimeout) {
+        clearTimeout(speechBubbleTimeout);
+    }
+    
+    // Set auto-close timeout (5 seconds)
+    speechBubbleTimeout = setTimeout(() => {
+        speechBubble.style.display = 'none';
+    }, 5000);
 }
 
 function handleCommand(command) {
@@ -251,7 +480,7 @@ function handleCommand(command) {
             if (parts[1]) {
                 nickname = parts[1];
                 socket.emit('login', { nickname, room: currentRoom, agent: currentAgent });
-                document.querySelector('.agent-nametag').textContent = nickname;
+                document.querySelector('.nametag-text').textContent = nickname;
             }
             break;
         case 'changeagent':
@@ -276,15 +505,28 @@ socket.on('message', (data) => {
     // If message is from another user, show their speech bubble
     if (data.id !== socket.id && remoteAgents.has(data.id)) {
         const remoteAgent = remoteAgents.get(data.id);
-        const speechBubble = remoteAgent.speechBubble;
-        speechBubble.textContent = data.message;
-        speechBubble.style.display = 'block';
-        setTimeout(() => {
-            speechBubble.style.display = 'none';
-        }, 3000);
         
-        // Text-to-speech
-        speak.play(data.message);
+        // Check if agent is muted
+        if (!remoteAgent.muted) {
+            showSpeechBubble(`speech-${data.id}`, data.message);
+            
+            // Text-to-speech
+            speak.play(data.message);
+        }
+    }
+});
+
+socket.on('typingStatus', (data) => {
+    if (data.id !== socket.id && remoteAgents.has(data.id)) {
+        const statusIndicator = remoteAgents.get(data.id).statusIndicator;
+        
+        statusIndicator.classList.remove('typing', 'commanding');
+        
+        if (data.isTyping) {
+            statusIndicator.classList.add('typing');
+        } else if (data.isCommanding) {
+            statusIndicator.classList.add('commanding');
+        }
     }
 });
 
@@ -310,6 +552,7 @@ socket.on('userLeft', (data) => {
             container.remove();
         }
         remoteAgents.delete(data.id);
+        mutedAgents.delete(data.id);
     }
 });
 

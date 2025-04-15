@@ -49,12 +49,23 @@
     </div>
 
     <div id="agent-container">
-        <div class="agent-nametag"></div>
+        <div class="agent-nametag">
+            <span class="nametag-text"></span>
+            <span class="status-indicator"></span>
+        </div>
         <canvas id="agent-canvas"></canvas>
         <div id="speech-bubble" class="speech-bubble"></div>
     </div>
     
     <div id="remote-agents-container"></div>
+
+    <!-- Agent Context Menu -->
+    <div id="agent-context-menu" class="context-menu" style="display: none;">
+        <div class="context-menu-item" data-action="close">Close Speech Bubble</div>
+        <hr>
+        <div class="context-menu-item" data-action="mute">Mute Agent</div>
+        <div class="context-menu-item" data-action="unmute">Unmute Agent</div>
+    </div>
 
     <div id="taskbar" class="taskbar">
         <div class="taskbar-start">

@@ -27,6 +27,14 @@ body {
     z-index: 10;
 }
 
+#hat-maker-window {
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 400px;
+    z-index: 150;
+}
+
 .room-info {
     padding: 5px;
     margin-bottom: 5px;
@@ -57,6 +65,12 @@ body {
 .message.system {
     font-style: italic;
     color: #555;
+}
+
+.message.admin {
+    background-color: #ffe0e0;
+    border-color: #ff8080;
+    font-weight: bold;
 }
 
 #agent-container, .remote-agent {
@@ -117,6 +131,27 @@ body {
     background-color: transparent;
 }
 
+.hat-container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 100px;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.hat-container.draggable {
+    pointer-events: auto;
+    cursor: move;
+}
+
+.hat-container img {
+    position: absolute;
+    transform-origin: bottom center;
+}
+
 .speech-bubble {
     position: absolute;
     background-color: white;
@@ -135,6 +170,14 @@ body {
 
 .speech-bubble:hover {
     background-color: #efefef;
+}
+
+.speech-bubble .quote {
+    border-left: 4px solid #008080;
+    padding-left: 10px;
+    margin-bottom: 5px;
+    color: #666;
+    font-style: italic;
 }
 
 .context-menu {
@@ -243,4 +286,149 @@ body {
     display: flex;
     align-items: center;
     padding: 0 10px;
+}
+
+fieldset {
+    margin-bottom: 10px;
+}
+
+.field-row.buttons {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+}
+
+#custom-hat-url {
+    width: 200px;
+    margin-left: 5px;
+}
+
+.admin-option {
+    display: none;
+    color: #ff0000;
+}
+
+.admin-separator {
+    display: none;
+}
+
+/* Ban window styling */
+#ban-window {
+    display: none;
+}
+
+#ban-window .window-body {
+    padding: 20px;
+}
+
+#ban-window .field-row {
+    margin-bottom: 15px;
+}
+
+#ban-window input {
+    width: 100%;
+}
+
+#ban-window .buttons {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* User info window */
+.user-info-window {
+    z-index: 200;
+}
+
+.user-info-window .window-body {
+    padding: 10px;
+}
+
+.user-info-window .field-row {
+    margin: 5px 0;
+}
+
+/* Poll Window Styles */
+#poll-window {
+    position: absolute;
+    width: 350px;
+    min-height: 250px;
+    z-index: 100;
+}
+
+.poll-options {
+    margin: 15px 0;
+}
+
+.poll-option {
+    margin-bottom: 10px;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 20px;
+    background-color: silver;
+    border: inset 2px;
+    margin: 5px 0;
+    position: relative;
+}
+
+.progress {
+    height: 100%;
+    transition: width 0.5s ease;
+}
+
+.progress.yes {
+    background-color: #00aa00;
+}
+
+.progress.no {
+    background-color: #cc0000;
+}
+
+.vote-count {
+    font-size: 12px;
+    text-align: right;
+}
+
+.poll-voters {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+#vote-btn {
+    min-width: 80px;
+}
+
+#poll-close-btn {
+    min-width: 100px;
+}
+
+/* Media Embeds */
+.media-embed {
+    max-width: 280px;
+    margin: 5px 0;
+    text-align: center;
+}
+
+.embedded-image {
+    max-width: 100%;
+    max-height: 200px;
+    border: solid 1px gray;
+}
+
+/* Announcement Message */
+.message.announcement {
+    background-color: #ffffcc;
+    border: solid 1px #ddddaa;
+    padding: 5px;
+    margin: 5px 0;
+    font-weight: bold;
+    color: #cc0000;
+}
+
+/* Help Button */
+.help-button {
+    margin-left: 5px;
+    cursor: help;
 } 

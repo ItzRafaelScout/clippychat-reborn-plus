@@ -53,6 +53,7 @@
             <span class="nametag-text"></span>
             <span class="status-indicator"></span>
         </div>
+        <div class="hat-container" id="local-hat"></div>
         <canvas id="agent-canvas"></canvas>
         <div id="speech-bubble" class="speech-bubble"></div>
     </div>
@@ -62,9 +63,71 @@
     <!-- Agent Context Menu -->
     <div id="agent-context-menu" class="context-menu" style="display: none;">
         <div class="context-menu-item" data-action="close">Close Speech Bubble</div>
+        <div class="context-menu-item" data-action="reply">Reply to Message</div>
+        <div class="context-menu-item" data-action="hat">Change Hat</div>
         <hr>
         <div class="context-menu-item" data-action="mute">Mute Agent</div>
         <div class="context-menu-item" data-action="unmute">Unmute Agent</div>
+        <hr class="admin-separator">
+        <div class="context-menu-item admin-option" data-action="kick">Kick User</div>
+        <div class="context-menu-item admin-option" data-action="ban">Ban User</div>
+        <div class="context-menu-item admin-option" data-action="info">User Info</div>
+    </div>
+    
+    <!-- Hat Maker Window -->
+    <div id="hat-maker-window" class="window" style="display: none;">
+        <div class="title-bar">
+            <div class="title-bar-text">Hat Maker</div>
+            <div class="title-bar-controls">
+                <button aria-label="Minimize"></button>
+                <button aria-label="Close"></button>
+            </div>
+        </div>
+        <div class="window-body">
+            <fieldset>
+                <legend>Select Hat</legend>
+                <div class="field-row">
+                    <input type="radio" id="hat-kamala" name="hat-type" value="kamala">
+                    <label for="hat-kamala">Kamala</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="hat-elon" name="hat-type" value="elon">
+                    <label for="hat-elon">Elon</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="hat-top_hat" name="hat-type" value="top_hat">
+                    <label for="hat-top_hat">Top Hat</label>
+                </div>
+                <div class="field-row">
+                    <input type="radio" id="hat-cap" name="hat-type" value="cap">
+                    <label for="hat-cap">Cap</label>
+                </div>
+            </fieldset>
+            
+            <fieldset>
+                <legend>Hat Properties</legend>
+                <div class="field-row">
+                    <label for="hat-size">Size:</label>
+                    <input type="range" id="hat-size" min="0.5" max="2" step="0.1" value="1">
+                    <span id="hat-size-value">1.0</span>
+                </div>
+                <div class="field-row">
+                    <label>Position: (Drag hat to position)</label>
+                </div>
+                <div class="field-row">
+                    <label for="hat-x">X:</label>
+                    <input type="number" id="hat-x" value="0" min="-100" max="100">
+                    <label for="hat-y">Y:</label>
+                    <input type="number" id="hat-y" value="-50" min="-100" max="100">
+                </div>
+            </fieldset>
+            
+            <div class="field-row buttons">
+                <button id="apply-hat-btn">Apply</button>
+                <button id="remove-hat-btn">Remove Hat</button>
+                <button id="cancel-hat-btn">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <div id="taskbar" class="taskbar">
@@ -73,6 +136,7 @@
         </div>
         <div class="taskbar-windows">
             <button class="taskbar-button" id="chat-taskbar-btn">ClippyCHAT REBORN+</button>
+            <button class="taskbar-button" id="hat-maker-btn">Hat Maker</button>
             <button class="taskbar-button" id="help-btn">Help</button>
         </div>
         <div class="taskbar-chat">

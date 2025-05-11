@@ -3,53 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ClippyCHAT REBORN+ - Help</title>
+    <title>ClippyCHAT REBORN+ Documentation</title>
     <link rel="stylesheet" href="https://unpkg.com/98.css">
     <style>
         body {
             background-color: #008080;
-            margin: 0;
-            padding: 20px;
-            font-family: 'MS Sans Serif', Arial, sans-serif;
+            font-family: "MS Sans Serif", sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
         }
         
         .window {
-            width: 500px;
-            margin: 50px auto;
+            width: 100%;
+            margin-bottom: 20px;
         }
         
         .window-body {
             padding: 10px;
         }
         
+        ul {
+            padding-left: 20px;
+        }
+        
+        .command {
+            font-family: "Courier New", monospace;
+            background-color: #eee;
+            padding: 2px 4px;
+            border: 1px solid #999;
+        }
+        
         h3 {
             margin-top: 20px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .admin {
+            color: #cc0000;
         }
         
-        table, th, td {
-            border: 1px solid #000;
-        }
-        
-        th, td {
-            padding: 5px;
-            text-align: left;
-        }
-        
-        th {
-            background-color: #c0c0c0;
+        .new {
+            background-color: #ffff99;
+            padding: 0 3px;
+            border: 1px solid #dddd77;
         }
     </style>
 </head>
 <body>
     <div class="window">
         <div class="title-bar">
-            <div class="title-bar-text">ClippyCHAT REBORN+ - Help</div>
+            <div class="title-bar-text">ClippyCHAT REBORN+ Documentation</div>
             <div class="title-bar-controls">
                 <button aria-label="Minimize"></button>
                 <button aria-label="Maximize"></button>
@@ -57,51 +61,73 @@
             </div>
         </div>
         <div class="window-body">
-            <h3>Welcome to ClippyCHAT REBORN+</h3>
-            <p>This application is a Windows 98 styled chat featuring classic Microsoft Agents.</p>
+            <img src="assets/logo.png" alt="ClippyCHAT REBORN+" style="display: block; margin: 0 auto; max-width: 300px;">
+            <h2>Welcome to ClippyCHAT REBORN+</h2>
+            <p>The ultimate Windows 98-styled chat experience featuring animated agents!</p>
             
-            <h3>Getting Started</h3>
-            <ol>
-                <li>Login with your nickname and room ID.</li>
-                <li>If you don't specify a room ID, you'll join the default room.</li>
-                <li>Once logged in, you can chat with others in the same room.</li>
-                <li>Your agent will appear on the screen and can be dragged around.</li>
-            </ol>
+            <h3>Basic Features</h3>
+            <ul>
+                <li>Animated agents (Bonzi, Peedy, Clippy)</li>
+                <li>Real-time chat with other users</li>
+                <li>Draggable agents</li>
+                <li>Customizable hats and accessories</li>
+                <li>Speech bubbles with auto-closing</li>
+                <li>Message replies</li>
+                <li>Typing indicators</li>
+            </ul>
             
             <h3>Chat Commands</h3>
-            <p>You can use the following commands in the chat:</p>
-            <table>
-                <tr>
-                    <th>Command</th>
-                    <th>Description</th>
-                </tr>
-                <tr>
-                    <td>/name [new_name]</td>
-                    <td>Change your nickname to [new_name]</td>
-                </tr>
-                <tr>
-                    <td>/changeagent [agent_name]</td>
-                    <td>Change your agent. Available agents: bonzi, peedy, clippy</td>
-                </tr>
-            </table>
-            
-            <h3>Agent Features</h3>
             <ul>
-                <li>Agents are draggable - simply click and drag to move them around the screen.</li>
-                <li>Each agent has animations and will display your messages in a speech bubble.</li>
-                <li>Text-to-speech is available for messages.</li>
+                <li><span class="command">/name [nickname]</span> - Change your display name</li>
+                <li><span class="command">/changeagent [bonzi|peedy|clippy]</span> - Switch your agent</li>
+                <li><span class="command">/help</span> - Show this documentation</li>
+                <li><span class="new">NEW!</span> <span class="command">/image [url]</span> - Share an image (jpg, jpeg, png, gif, webp)</li>
+                <li><span class="new">NEW!</span> <span class="command">/video [youtube-url]</span> - Embed a YouTube video</li>
+                <li><span class="new">NEW!</span> <span class="command">/poll [question]</span> - Create a yes/no poll</li>
             </ul>
             
-            <h3>Window Management</h3>
+            <h3>Using Images and Videos</h3>
+            <p>You can now share images and YouTube videos in your chat messages:</p>
             <ul>
-                <li>The chat window can be moved by dragging its title bar.</li>
-                <li>Use the taskbar buttons to minimize/maximize windows.</li>
-                <li>Window controls (minimize, maximize, close) work as expected.</li>
+                <li>For images, use <span class="command">/image https://example.com/image.jpg</span></li>
+                <li>For YouTube videos, use <span class="command">/video https://youtube.com/watch?v=VIDEOID</span> or <span class="command">/video https://youtu.be/VIDEOID</span></li>
             </ul>
             
-            <div class="field-row" style="justify-content: flex-end;">
-                <button onclick="window.close()">Close</button>
-            </div>
+            <h3><span class="new">NEW!</span> Poll System</h3>
+            <p>Create and participate in yes/no polls:</p>
+            <ul>
+                <li>Type <span class="command">/poll Is this the best chat app ever?</span> to create a poll</li>
+                <li>Everyone in the room can vote by clicking Yes or No in the poll window</li>
+                <li>Polls display real-time results with colored progress bars</li>
+                <li>Green progress bar shows "Yes" votes percentage</li>
+                <li>Red progress bar shows "No" votes percentage</li>
+                <li>You can only vote once per poll</li>
+                <li>Only one active poll per room at a time</li>
+            </ul>
+            
+            <h3>Hat System</h3>
+            <p>Personalize your agent with hats and accessories:</p>
+            <ul>
+                <li>Open the hat menu through the agent context menu</li>
+                <li>Choose from various predefined hats</li>
+                <li>Drag to position hats perfectly on your agent</li>
+                <li>Your hat settings persist across sessions</li>
+            </ul>
+            
+            <h3 class="admin">Admin Features</h3>
+            <p>Admin authentication required. Contact a server administrator for access.</p>
+            <ul>
+                <li><span class="command">/adminpass [password]</span> - Login as admin</li>
+                <li><span class="command">/kick [username]</span> - Remove a user from the chat</li>
+                <li><span class="command">/ban [username]</span> - Ban a user by IP address</li>
+                <li><span class="new">NEW!</span> <span class="command">/mute [username]</span> - Prevent a user from sending messages</li>
+                <li><span class="new">NEW!</span> <span class="command">/unmute [username]</span> - Allow a muted user to send messages again</li>
+                <li><span class="new">NEW!</span> <span class="command">/announce [message]</span> - Send an announcement to all users</li>
+                <li><span class="new">NEW!</span> <span class="command">/clear</span> - Clear the chat history for all users</li>
+            </ul>
+            
+            <hr>
+            <p style="text-align: center;">ClippyCHAT REBORN+ v2.0 &copy; 2023-2024</p>
         </div>
     </div>
 </body>
